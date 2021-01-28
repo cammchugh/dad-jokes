@@ -1,0 +1,1 @@
+from .joke_rating import JokeRatingForm
