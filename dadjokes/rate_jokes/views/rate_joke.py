@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect, reverse
 from django.views import View
 
 from ..forms import JokeRatingForm
+from ..joke_fetcher import JokeFetcher
 from ..models import DadJoke, Rating
 
 
@@ -16,23 +17,10 @@ class RateJokeView(View):
 
     def get(self, request, *args, **kwargs):
         user = request.user
-        unrated_joke = DadJoke.objects.exclude(ratings__rated_by=user).first()
-        if not unrated_joke:
-            for _ in range(2):
-                response = requests.get('https://icanhazdadjoke.com/', headers={'Accept': 'application/json'})
-                joke_json = response.json()
-                joke_reference_id = joke_json['id']
-                joke_text = joke_json['joke']
-                unrated_joke, created = DadJoke.objects.get_or_create(
-                    joke_reference_id=joke_reference_id,
-                    defaults={'joke_text': joke_text}
-                )
-                if created and not user.rated_jokes.filter(dad_joke=unrated_joke).exists():
-                    break
-
-        rate_joke_form = self.form_class(dad_joke=unrated_joke)
+        joke = JokeFetcher.get_joke(user)
+        rate_joke_form = self.form_class(dad_joke=joke)
         context = {
-            'dad_joke': unrated_joke,
+            'dad_joke': joke,
             'form': rate_joke_form
         }
         return render(request, self.template_name, context)

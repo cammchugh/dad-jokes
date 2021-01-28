@@ -25,69 +25,6 @@ class RateJokeViewGetTests(TestCase):
         self.assertTrue(DadJoke.objects.filter(joke_reference_id='abc123').exists())
         self.assertContains(response, 'This is a joke.')
 
-    def test_get_uses_existing_unrated_joke_instead_of_fetching(self):
-        # setup
-        cam = User.objects.create_user('cam', password='password')
-        existing_joke = DadJoke.objects.create(joke_reference_id='abc123', joke_text='A duck walks into a bar...')
-        self.client.force_login(cam)
-
-        # execute
-        with patch('requests.get') as request_mock:
-            response = self.client.get('/rate/')
-
-        # assert
-        request_mock.assert_not_called()
-        self.assertFalse(DadJoke.objects.exclude(joke_reference_id='abc123').exists())
-        self.assertContains(response, existing_joke.joke_text)
-
-    def test_get_fetching_new_joke_when_user_has_rated_all_exsting_jokes(self):
-        # setup
-        cam = User.objects.create_user('cam', password='password')
-        existing_joke = DadJoke.objects.create(joke_reference_id='abc123', joke_text='A duck walks into a bar...')
-        Rating.objects.create(dad_joke=existing_joke, rated_by=cam, rating_value='giggle')
-        self.client.force_login(cam)
-
-        with patch('requests.get') as request_mock:
-            mock_response = Mock()
-            mock_response.configure_mock(**{
-                'json.return_value': {'id': 'def456', 'joke': 'This is a joke.'},
-                'status_code': 200
-            })
-            request_mock.return_value = mock_response
-            # execute
-            response = self.client.get('/rate/')
-
-        # assert
-        self.assertTrue(DadJoke.objects.filter(joke_reference_id='def456').exists())
-        self.assertContains(response, 'This is a joke.')
-
-    def test_get_retries_fetching_new_joke_once_when_existing_rated_joke_returned(self):
-        # setup
-        cam = User.objects.create_user('cam', password='password')
-        existing_joke = DadJoke.objects.create(joke_reference_id='abc123', joke_text='This is an existing joke.')
-        Rating.objects.create(dad_joke=existing_joke, rated_by=cam, rating_value='giggle')
-        self.client.force_login(cam)
-
-        with patch('requests.get') as request_mock:
-            duplicate_joke_response = Mock()
-            duplicate_joke_response.configure_mock(**{
-                'json.return_value': {'id': 'abc123', 'joke': 'This is a existing joke.'},
-                'status_code': 200
-            })
-            new_joke_response = Mock()
-            new_joke_response.configure_mock(**{
-                'json.return_value': {'id': 'def456', 'joke': 'This is a new joke.'},
-                'status_code': 200
-            })
-            request_mock.side_effect = [duplicate_joke_response, new_joke_response]
-
-            # execute
-            response = self.client.get('/rate/')
-
-        # assert
-        self.assertTrue(DadJoke.objects.filter(joke_reference_id='def456').exists())
-        self.assertContains(response, 'This is a new joke.')
-
 
 class RateJokeViewPostTests(TestCase):
 
