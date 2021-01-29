@@ -1,0 +1,15 @@
+{% block content %}
+<div>
+    {{ dad_joke.joke_text }}
+</div>
+<div>
+    {% for grouped_rating in grouped_ratings %}
+        {{ grouped_rating.0 }}
+        {% for rating in grouped_rating.1 %}
+            <ul>
+                <li>{{ rating.dad_joke }}</li>
+            </ul>
+        {% endfor %}
+    {% endfor %}
+</div>
+{% endblock %}
