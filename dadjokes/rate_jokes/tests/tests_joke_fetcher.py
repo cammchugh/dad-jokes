@@ -8,9 +8,7 @@ class JokeFetcherTests(SimpleTestCase):
 
     def setUp(self):
         super(JokeFetcherTests, self).setUp()
-        self.joke_from_api = Mock()
         self.mock_random_joke_fn = Mock()
-        self.mock_random_joke_fn.return_value = self.joke_from_api
         self.mock_user = Mock()
 
     @patch('rate_jokes.joke_fetcher.DadJoke')
@@ -25,21 +23,17 @@ class JokeFetcherTests(SimpleTestCase):
         # execute
         actual_joke = JokeFetcher.get_joke(self.mock_user, get_joke_fn=self.mock_random_joke_fn)
         # assert
-        mock_dad_joke_cls.save_joke.assert_called_with(self.joke_from_api)
+        mock_dad_joke_cls.save_joke.assert_called_with(self.mock_random_joke_fn.return_value)
         self.assertEqual(actual_joke, new_joke)
 
     @patch('rate_jokes.joke_fetcher.DadJoke')
     def test_joke_fetcher_returns_existing_unrated_joke_instead_of_fetching(self, mock_dad_joke_cls):
-        # setup
-        existing_joke = Mock()
-        mock_dad_joke_calls = {'unrated_joke_for_user.return_value': existing_joke}
-        mock_dad_joke_cls.configure_mock(**mock_dad_joke_calls)
         # execute
         actual_joke = JokeFetcher.get_joke(self.mock_user, get_joke_fn=self.mock_random_joke_fn)
         # assert
         self.mock_random_joke_fn.assert_not_called()
         mock_dad_joke_cls.save_joke.assert_not_called()
-        self.assertEqual(existing_joke, actual_joke)
+        self.assertEqual(mock_dad_joke_cls.unrated_joke_for_user.return_value, actual_joke)
 
     @patch('rate_jokes.joke_fetcher.DadJoke')
     def test_joke_fetcher_retries_if_it_gets_an_existing_rated_joke(self, mock_dad_joke_cls):
