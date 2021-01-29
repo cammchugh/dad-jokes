@@ -37,7 +37,7 @@ class RateJokeView(View):
             joke_rating.save()
             return redirect(reverse('rate_joke'))
         else:
-            if not 'dad_joke_id' in rate_joke_form.errors:
+            if 'dad_joke_id' not in rate_joke_form.errors:
                 dad_joke_id = rate_joke_form.data.get('dad_joke_id')
                 dad_joke = DadJoke.objects.get(pk=dad_joke_id)
                 context = {
