@@ -2,19 +2,9 @@ from django.contrib.auth.models import User
 from django.db import models
 from .joke import DadJoke
 
+
 # https://en.wikipedia.org/wiki/Laughter
 # Types of laughter, ordered by intensity.
-rating_choices = (
-    ('chuckle', 'Chuckle'),
-    ('titter', 'Titter'),
-    ('giggle', 'Giggle'),
-    ('chortle', 'Chortle'),
-    ('cackle', 'Cackle'),
-    ('belly_laugh', 'LOL'),
-    ('sputtering_burst', 'LMFAO'),
-)
-
-
 class RatingValue(models.TextChoices):
     CHUCKLE = '1_chuckle', 'Chuckle'
     TITTER = '2_titter', 'Titter'
