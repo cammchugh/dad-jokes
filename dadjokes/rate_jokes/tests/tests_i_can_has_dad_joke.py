@@ -3,6 +3,7 @@ from unittest.mock import patch, Mock
 
 from ..i_can_has_dad_joke import random_joke
 
+
 class ICanHasDadJokeTests(SimpleTestCase):
 
     def test_random_joke(self):
