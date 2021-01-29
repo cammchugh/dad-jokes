@@ -8,14 +8,16 @@
         </ul>
         {% endif %}
     </div>
-    <div class="joke">
-        {{ dad_joke.joke_text|safe }}
-    </div>
-    <div>
-        <form action="" method="POST">
-            {% csrf_token %}
-            {{ form.as_table }}
-            <input type="submit" value="Submit Rating" />
-        </form>
+    <div class="joke" style="margin: 100px;text-align: center;">
+        <p style="font-family: 'Comic Sans MS';font-size: x-large;">
+            <strong>{{ dad_joke.joke_text|safe }}</strong>
+        </p>
+        <div>
+            <form action="" method="POST">
+                {% csrf_token %}
+                {{ form.as_table }}
+                <input type="submit" value="Submit Rating" />
+            </form>
+        </div>
     </div>
 {% endblock %}
